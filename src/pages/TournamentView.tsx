@@ -42,10 +42,9 @@ export default function TournamentView() {
   const totalPicks = picks?.length || 0;
 
   const handleShare = async () => {
-    const url = window.location.href;
-    await navigator.clipboard.writeText(url);
-    toast.success("Link copied", {
-      description: "Share this URL to show the tournament",
+    await navigator.clipboard.writeText(id);
+    toast.success("Tournament code copied", {
+      description: "Share this code. Load it from the home page to view.",
     });
   };
 
