@@ -20,6 +20,9 @@ interface HeroPickerModalProps {
   tournamentId: string;
   maxHeroes: number;
   currentPicks: Pick[];
+  bannedHeroes?: string[];
+  contextLabel?: string;
+  onSave?: (heroes: string[]) => Promise<void>;
 }
 
 export default function HeroPickerModal({
@@ -30,12 +33,18 @@ export default function HeroPickerModal({
   tournamentId,
   maxHeroes,
   currentPicks,
+  bannedHeroes,
+  contextLabel,
+  onSave,
 }: HeroPickerModalProps) {
   const [selected, setSelected] = useState<string[]>(
     () => currentPicks.map((p) => p.hero_name)
   );  const savePicks = useSavePicks();
 
+  const bannedSet = new Set(bannedHeroes ?? []);
+
   const handleToggle = (hero: string) => {
+    if (bannedSet.has(hero)) return;
     setSelected((prev) => {
       if (prev.includes(hero)) return prev.filter((h) => h !== hero);
       if (prev.length >= maxHeroes) return prev;
@@ -58,30 +67,50 @@ export default function HeroPickerModal({
       return;
     }
 
-    await savePicks.mutateAsync({
-      tournamentId,
-      participantId: participant.id,
-      gameNumber,
-      heroes: selected,
-    });
+    if (onSave) {
+      await onSave(selected);
+    } else {
+      await savePicks.mutateAsync({
+        tournamentId,
+        participantId: participant.id,
+        gameNumber,
+        heroes: selected,
+      });
+    }
 
     toast.success("Picks saved", {
-      description: `${participant.name}: ${selected.join(", ") || "none"}`,
+      description: selected.length > 0
+        ? `${participant.name}: ${selected.join(", ")}`
+        : `${participant.name} cleared picks`,
     });
     onOpenChange(false);
   };
 
   if (!participant) return null;
 
+  const bannedCount = bannedHeroes?.length ?? 0;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>
-            {participant.name}, Game {gameNumber}
+          <DialogTitle className="font-display text-base">
+            {participant.name}
+            {contextLabel && (
+              <span className="block font-mono text-[10px] text-ink-mist font-normal mt-0.5">
+                {contextLabel}
+              </span>
+            )}
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
+          {bannedCount > 0 && (
+            <div className="flex items-center gap-2 bg-vermillion-wash border border-vermillion-faded/20 rounded px-3 py-1.5">
+              <span className="font-mono text-[10px] text-vermillion-faded">
+                {bannedCount} hero{bannedCount !== 1 ? "es" : ""} banned this round
+              </span>
+            </div>
+          )}
           <div className="flex items-center justify-between">
             <span
               className={`font-mono text-xs ${
@@ -99,6 +128,7 @@ export default function HeroPickerModal({
             selected={selected}
             onToggle={handleToggle}
             maxSelections={maxHeroes}
+            disabledHeroes={bannedSet}
           />
           <div className="flex justify-end">
             <Button

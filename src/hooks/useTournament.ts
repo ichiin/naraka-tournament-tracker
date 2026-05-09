@@ -26,6 +26,25 @@ export interface Pick {
   hero_name: string;
 }
 
+export interface BanPickPool {
+  id: string;
+  tournament_id: string;
+  pool_number: number;
+  name: string;
+  player_name: string;
+  won_duel: boolean;
+  created_at: string;
+}
+
+export interface BanPickPick {
+  id: string;
+  tournament_id: string;
+  round_number: number;
+  game_number: number;
+  pool_id: string;
+  hero_name: string;
+}
+
 export interface CreateTournamentInput {
   name: string;
   mode: "solo" | "trios";
@@ -213,6 +232,194 @@ export function useUpdateParticipant() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["participants"] });
+    },
+  });
+}
+
+async function fetchBanPickPools(tournamentId: string): Promise<BanPickPool[]> {
+  const { data, error } = await supabase
+    .from("banpick_pools")
+    .select("*")
+    .eq("tournament_id", tournamentId)
+    .order("pool_number", { ascending: true });
+  if (error) throw error;
+  return data;
+}
+
+async function fetchBanPickPicks(tournamentId: string): Promise<BanPickPick[]> {
+  const { data, error } = await supabase
+    .from("banpick_picks")
+    .select("*")
+    .eq("tournament_id", tournamentId)
+    .order("round_number", { ascending: true });
+  if (error) throw error;
+  return data;
+}
+
+export function useBanPickPools(tournamentId: string) {
+  return useQuery({
+    queryKey: queryKeys.banpickPools(tournamentId),
+    queryFn: () => fetchBanPickPools(tournamentId),
+    enabled: !!tournamentId,
+  });
+}
+
+export function useBanPickPicks(tournamentId: string) {
+  return useQuery({
+    queryKey: queryKeys.banpickPicks(tournamentId),
+    queryFn: () => fetchBanPickPicks(tournamentId),
+    enabled: !!tournamentId,
+  });
+}
+
+export function useInitializeBanPickPools() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (tournamentId: string) => {
+      const poolRows = [1, 2, 3, 4].map((poolNumber) => ({
+        tournament_id: tournamentId,
+        pool_number: poolNumber,
+        name: `Pool ${poolNumber}`,
+        player_name: "",
+        won_duel: false,
+      }));
+
+      const { data, error } = await supabase
+        .from("banpick_pools")
+        .insert(poolRows)
+        .select();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (_, tournamentId) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.banpickPools(tournamentId),
+      });
+    },
+  });
+}
+
+export function useUpdateBanPickPool() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      updates,
+    }: {
+      id: string;
+      tournamentId: string;
+      updates: { name?: string; player_name?: string; won_duel?: boolean };
+    }) => {
+      const { error } = await supabase
+        .from("banpick_pools")
+        .update(updates)
+        .eq("id", id);
+
+      if (error) throw error;
+    },
+    onSuccess: (_, vars) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.banpickPools(vars.tournamentId),
+      });
+    },
+  });
+}
+
+export function useSaveBanPickPick() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      tournamentId,
+      roundNumber,
+      gameNumber,
+      poolId,
+      heroName,
+    }: {
+      tournamentId: string;
+      roundNumber: number;
+      gameNumber: number;
+      poolId: string;
+      heroName: string;
+    }) => {
+      const { error: delError } = await supabase
+        .from("banpick_picks")
+        .delete()
+        .eq("tournament_id", tournamentId)
+        .eq("round_number", roundNumber)
+        .eq("game_number", gameNumber);
+
+      if (delError) throw delError;
+
+      const { error: insError } = await supabase
+        .from("banpick_picks")
+        .insert({
+          tournament_id: tournamentId,
+          round_number: roundNumber,
+          game_number: gameNumber,
+          pool_id: poolId,
+          hero_name: heroName,
+        });
+
+      if (insError) throw insError;
+    },
+    onSuccess: (_, vars) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.banpickPicks(vars.tournamentId),
+      });
+    },
+  });
+}
+
+export function useDeleteBanPickPick() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      tournamentId,
+      roundNumber,
+      gameNumber,
+    }: {
+      tournamentId: string;
+      roundNumber: number;
+      gameNumber: number;
+    }) => {
+      const { error } = await supabase
+        .from("banpick_picks")
+        .delete()
+        .eq("tournament_id", tournamentId)
+        .eq("round_number", roundNumber)
+        .eq("game_number", gameNumber);
+
+      if (error) throw error;
+    },
+    onSuccess: (_, vars) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.banpickPicks(vars.tournamentId),
+      });
+    },
+  });
+}
+
+export function useClearAllBanPickPicks() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (tournamentId: string) => {
+      const { error } = await supabase
+        .from("banpick_picks")
+        .delete()
+        .eq("tournament_id", tournamentId);
+
+      if (error) throw error;
+    },
+    onSuccess: (_, tournamentId) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.banpickPicks(tournamentId),
+      });
     },
   });
 }

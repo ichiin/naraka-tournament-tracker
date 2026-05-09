@@ -1,6 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Share2, Settings } from "lucide-react";
+import { Share2, Settings, Swords } from "lucide-react";
 import { toast } from "sonner";
 import { useTournament, useParticipants, usePicks } from "@/hooks/useTournament";
 import PickTable from "@/components/PickTable";
@@ -80,6 +80,17 @@ export default function TournamentView() {
         </div>
 
         <div className="flex gap-2">
+          <Link to={`/tournament/${id}/draft`}>
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-amber/30 text-amber hover:border-amber hover:bg-amber-wash/10
+                         font-body text-xs gap-2"
+            >
+              <Swords className="h-3.5 w-3.5" />
+              Draft
+            </Button>
+          </Link>
           <Button
             variant="outline"
             size="sm"

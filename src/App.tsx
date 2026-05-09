@@ -8,6 +8,7 @@ import Layout from "@/components/Layout";
 import CreateTournament from "@/pages/CreateTournament";
 import TournamentView from "@/pages/TournamentView";
 import TournamentSetup from "@/pages/TournamentSetup";
+import DraftView from "@/pages/DraftView";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -47,6 +48,10 @@ export default function App() {
             <Route
               path="/tournament/:id/setup"
               element={<TournamentSetup />}
+            />
+            <Route
+              path="/tournament/:id/draft"
+              element={<DraftView />}
             />
           </Route>
         </Routes>

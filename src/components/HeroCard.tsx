@@ -6,6 +6,7 @@ interface HeroCardProps {
   name: string;
   selected?: boolean;
   disabled?: boolean;
+  banned?: boolean;
   onClick?: () => void;
   size?: "sm" | "md" | "lg";
 }
@@ -14,6 +15,7 @@ const HeroCard = memo(function HeroCard({
   name,
   selected,
   disabled,
+  banned,
   onClick,
   size = "md",
 }: HeroCardProps) {
@@ -34,17 +36,19 @@ const HeroCard = memo(function HeroCard({
 
   const color = HERO_COLORS[name] || "#8A8278";
 
+  const isInteractive = !disabled && !banned;
+
   return (
     <button
       type="button"
-      onClick={onClick}
+      onClick={banned ? undefined : onClick}
       disabled={disabled}
-      aria-label={name}
+      aria-label={banned ? `${name} (banned)` : name}
       className={cn(
         "relative flex flex-col items-center gap-1 group transition-all duration-200",
         "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber",
-        !disabled && "cursor-pointer",
-        disabled && "opacity-40 cursor-not-allowed"
+        isInteractive && "cursor-pointer",
+        (disabled || banned) && "opacity-40 cursor-not-allowed"
       )}
     >
       <div
@@ -54,9 +58,12 @@ const HeroCard = memo(function HeroCard({
           "border-2",
           selected
             ? "border-amber shadow-[0_0_12px_hsl(38,75%,52%/0.4)] scale-105"
-            : "border-ink-border group-hover:border-ink-mist/60",
-          !disabled && "group-hover:scale-105",
-          "[will-change:transform]"
+            : banned
+              ? "border-vermillion-DEFAULT/50"
+              : "border-ink-border group-hover:border-ink-mist/60",
+          isInteractive && "group-hover:scale-105",
+          "[will-change:transform]",
+          banned && "grayscale hero-banned-stripe"
         )}
       >
         {!imgError ? (
@@ -87,7 +94,11 @@ const HeroCard = memo(function HeroCard({
           size === "sm" && "text-[9px]",
           size === "md" && "text-[10px]",
           size === "lg" && "text-xs",
-          selected ? "text-gold" : "text-ink-mist group-hover:text-ink-DEFAULT"
+          selected
+            ? "text-gold"
+            : banned
+              ? "text-vermillion-faded line-through"
+              : "text-ink-mist group-hover:text-ink-DEFAULT"
         )}
       >
         {name}
