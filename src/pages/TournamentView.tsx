@@ -3,9 +3,7 @@ import { motion } from "framer-motion";
 import { Share2, Settings } from "lucide-react";
 import { toast } from "sonner";
 import { useTournament, useParticipants, usePicks } from "@/hooks/useTournament";
-import { HEROES } from "@/lib/heroes";
 import PickTable from "@/components/PickTable";
-import PickRateSummary from "@/components/PickRateSummary";
 import { Button } from "@/components/ui/button";
 
 export default function TournamentView() {
@@ -41,12 +39,6 @@ export default function TournamentView() {
       </div>
     );
   }
-
-  const pickCounts: Record<string, number> = {};
-  HEROES.forEach((h) => (pickCounts[h] = 0));
-  picks?.forEach((p) => {
-    pickCounts[p.hero_name] = (pickCounts[p.hero_name] || 0) + 1;
-  });
 
   const totalPicks = picks?.length || 0;
 
@@ -114,38 +106,18 @@ export default function TournamentView() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-[1fr_280px] gap-8">
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="font-display text-sm text-ink-DEFAULT tracking-[0.15em] uppercase">
-              Pick Table
-            </h2>
-            <div className="flex gap-1">
-              {Array.from({ length: tournament.num_games }, (_, i) => (
-                <Link
-                  key={i}
-                  to={`/tournament/${id}/game/${i + 1}`}
-                  className="font-mono text-[10px] px-2 py-1 border border-ink-border text-ink-mist
-                             hover:border-vermillion/50 hover:text-vermillion transition-colors"
-                >
-                  G{i + 1}
-                </Link>
-              ))}
-            </div>
-          </div>
+      <div className="space-y-4">
+        <h2 className="font-display text-sm text-ink-DEFAULT tracking-[0.15em] uppercase">
+          Pick Table
+        </h2>
 
-          <div className="bg-ink-surface border border-ink-border rounded-lg p-4">
-            <PickTable
-              participants={participants || []}
-              picks={picks || []}
-              numGames={tournament.num_games}
-              mode={tournament.mode}
-            />
-          </div>
-        </div>
-
-        <div className="bg-ink-surface border border-ink-border rounded-lg p-5">
-          <PickRateSummary pickCounts={pickCounts} totalPicks={totalPicks} />
+        <div className="bg-ink-surface border border-ink-border rounded-lg p-4">
+          <PickTable
+            participants={participants || []}
+            picks={picks || []}
+            numGames={tournament.num_games}
+            mode={tournament.mode}
+          />
         </div>
       </div>
     </motion.div>

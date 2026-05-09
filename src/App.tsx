@@ -6,7 +6,6 @@ import { Toaster } from "@/components/ui/sonner";
 import Layout from "@/components/Layout";
 import CreateTournament from "@/pages/CreateTournament";
 import TournamentView from "@/pages/TournamentView";
-import GamePicker from "@/pages/GamePicker";
 import TournamentSetup from "@/pages/TournamentSetup";
 
 const queryClient = new QueryClient({
@@ -29,10 +28,6 @@ export default function App() {
             <Route
               path="/tournament/:id/setup"
               element={<TournamentSetup />}
-            />
-            <Route
-              path="/tournament/:id/game/:gameNumber"
-              element={<GamePicker />}
             />
           </Route>
         </Routes>

@@ -1,6 +1,9 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useState } from "react";
+import { useParams } from "react-router-dom";
 import type { Pick, Participant } from "@/hooks/useTournament";
+import { useUpdateParticipant } from "@/hooks/useTournament";
 import HeroCard from "@/components/HeroCard";
+import HeroPickerModal from "@/components/HeroPickerModal";
 
 interface PickTableProps {
   participants: Participant[];
@@ -15,8 +18,14 @@ export default function PickTable({
   numGames,
   mode,
 }: PickTableProps) {
-  const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const updateParticipant = useUpdateParticipant();
+
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalParticipant, setModalParticipant] = useState<Participant | null>(null);
+  const [modalGameNumber, setModalGameNumber] = useState<number | null>(null);
 
   if (participants.length === 0) {
     return (
@@ -27,6 +36,29 @@ export default function PickTable({
   }
 
   const maxHeroes = mode === "solo" ? 1 : 3;
+
+  const handleSaveName = () => {
+    if (editingId && editValue.trim()) {
+      updateParticipant.mutate({ id: editingId, name: editValue.trim() });
+    }
+    setEditingId(null);
+    setEditValue("");
+  };
+
+  const handleCellClick = (participant: Participant, gameNumber: number) => {
+    setModalParticipant(participant);
+    setModalGameNumber(gameNumber);
+    setModalOpen(true);
+  };
+
+  const modalCurrentPicks =
+    modalParticipant && modalGameNumber
+      ? picks.filter(
+          (p) =>
+            p.participant_id === modalParticipant.id &&
+            p.game_number === modalGameNumber
+        )
+      : [];
 
   return (
     <div className="overflow-x-auto -mx-6 px-6">
@@ -54,10 +86,39 @@ export default function PickTable({
                 idx % 2 === 0 ? "bg-ink-void/30" : "bg-transparent"
               }`}
             >
-              <td className="sticky left-0 z-10 py-3 pr-4 border-b border-ink-border/50 font-body text-sm text-ink-DEFAULT"
-                  style={{ backgroundColor: idx % 2 === 0 ? "rgb(13,11,15,0.3)" : "transparent" }}
+              <td
+                className="sticky left-0 z-10 py-3 pr-4 border-b border-ink-border/50 font-body text-sm text-ink-DEFAULT"
+                style={{
+                  backgroundColor:
+                    idx % 2 === 0 ? "rgb(13,11,15,0.3)" : "transparent",
+                }}
               >
-                {p.name}
+                {editingId === p.id ? (
+                  <input
+                    autoFocus
+                    value={editValue}
+                    onChange={(e) => setEditValue(e.target.value)}
+                    onBlur={handleSaveName}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleSaveName();
+                      if (e.key === "Escape") {
+                        setEditingId(null);
+                        setEditValue("");
+                      }
+                    }}
+                    className="bg-ink-void border border-vermillion/50 text-ink-DEFAULT font-body text-sm px-2 py-0.5 w-full max-w-[140px] focus:outline-none"
+                  />
+                ) : (
+                  <button
+                    onClick={() => {
+                      setEditingId(p.id);
+                      setEditValue(p.name);
+                    }}
+                    className="hover:text-gold transition-colors cursor-text text-left w-full"
+                  >
+                    {p.name}
+                  </button>
+                )}
               </td>
               {Array.from({ length: numGames }, (_, gi) => {
                 const gameNumber = gi + 1;
@@ -66,10 +127,6 @@ export default function PickTable({
                     pick.participant_id === p.id &&
                     pick.game_number === gameNumber
                 );
-
-                const handleClick = () => {
-                  navigate(`/tournament/${id}/game/${gameNumber}`);
-                };
 
                 const hasPicks = cellPicks.length > 0;
                 const allFilled = cellPicks.length === maxHeroes;
@@ -80,7 +137,7 @@ export default function PickTable({
                     className="text-center py-2 px-1 border-b border-ink-border/50"
                   >
                     <button
-                      onClick={handleClick}
+                      onClick={() => handleCellClick(p, gameNumber)}
                       className="flex flex-wrap items-center justify-center gap-0.5 cursor-pointer
                                  hover:bg-vermillion-wash/10 rounded transition-colors min-h-[36px] min-w-[60px] p-1"
                       title={`Game ${gameNumber} - ${p.name}`}
@@ -112,6 +169,17 @@ export default function PickTable({
           ))}
         </tbody>
       </table>
+
+      <HeroPickerModal
+        key={`${modalParticipant?.id}-${modalGameNumber}`}
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        participant={modalParticipant}
+        gameNumber={modalGameNumber ?? 0}
+        tournamentId={id!}
+        maxHeroes={maxHeroes}
+        currentPicks={modalCurrentPicks}
+      />
     </div>
   );
 }
