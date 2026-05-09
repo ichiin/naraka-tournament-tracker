@@ -10,6 +10,9 @@ import {
   useBanPickPools,
   useBanPickPicks,
   useInitializeBanPickPools,
+  useSavePicks,
+  useSaveBanPickPick,
+  useDeleteBanPickPick,
 } from "@/hooks/useTournament";
 import PickTable from "@/components/PickTable";
 import DraftTracker from "@/components/DraftTracker";
@@ -25,6 +28,9 @@ export default function TournamentView() {
   const { data: pools, isLoading: pLoading } = useBanPickPools(id ?? "");
   const { data: draftPicks } = useBanPickPicks(id ?? "");
   const initPools = useInitializeBanPickPools();
+  const savePicks = useSavePicks();
+  const saveBanPickPick = useSaveBanPickPick();
+  const deleteBanPickPick = useDeleteBanPickPick();
 
   const [showPicks, setShowPicks] = useState(true);
   const [showDraft, setShowDraft] = useState(true);
@@ -62,6 +68,54 @@ export default function TournamentView() {
   }
 
   const totalPicks = picks?.length || 0;
+
+  const handlePickSave = async (
+    participantId: string,
+    gameNumber: number,
+    heroes: string[]
+  ) => {
+    await savePicks.mutateAsync({
+      tournamentId: id!,
+      participantId,
+      gameNumber,
+      heroes,
+    });
+
+    const participant = participants?.find((p) => p.id === participantId);
+    if (!participant) return;
+
+    const pool = pools?.find(
+      (p) =>
+        p.win_player_name === participant.name ||
+        p.loss_player_name === participant.name
+    );
+    if (!pool || gameNumber < 2 || gameNumber > 5) return;
+
+    const playerSlot =
+      pool.win_player_name === participant.name ? 1 : 2;
+
+    const rawRound = ((pool.pool_number - gameNumber + 2) % 4);
+    const roundNumber = rawRound === 0 ? 4 : rawRound;
+
+    const heroName = heroes[0] || "";
+    if (heroName) {
+      await saveBanPickPick.mutateAsync({
+        tournamentId: id!,
+        roundNumber,
+        gameNumber,
+        poolId: pool.id,
+        playerSlot,
+        heroName,
+      });
+    } else {
+      await deleteBanPickPick.mutateAsync({
+        tournamentId: id!,
+        roundNumber,
+        gameNumber,
+        playerSlot,
+      });
+    }
+  };
 
   const handleShare = async () => {
     await navigator.clipboard.writeText(id);
@@ -166,6 +220,7 @@ export default function TournamentView() {
               picks={picks || []}
               numGames={tournament.num_games}
               mode={tournament.mode}
+              onPickSave={handlePickSave}
             />
           </div>
         </div>

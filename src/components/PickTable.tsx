@@ -10,6 +10,7 @@ interface PickTableProps {
   picks: Pick[];
   numGames: number;
   mode: "solo" | "trios";
+  onPickSave?: (participantId: string, gameNumber: number, heroes: string[]) => Promise<void>;
 }
 
 export default function PickTable({
@@ -17,6 +18,7 @@ export default function PickTable({
   picks,
   numGames,
   mode,
+  onPickSave,
 }: PickTableProps) {
   const { id } = useParams<{ id: string }>();
   const updateParticipant = useUpdateParticipant();
@@ -191,6 +193,12 @@ export default function PickTable({
         tournamentId={id!}
         maxHeroes={maxHeroes}
         currentPicks={modalCurrentPicks}
+        onSave={
+          onPickSave
+            ? (heroes) =>
+                onPickSave(modalParticipant!.id, modalGameNumber!, heroes)
+            : undefined
+        }
       />
     </div>
   );
