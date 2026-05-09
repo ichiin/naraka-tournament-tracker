@@ -83,30 +83,38 @@ export default function DraftTracker({ pools, picks, participants }: DraftTracke
   }, [picks]);
 
   const bannedByRound = useMemo(() => {
-    const banned = new Map<number, Set<string>>();
-    for (let r = 1; r <= 4; r++) {
-      const set = new Set<string>();
-      for (const pick of picks) {
-        if (pick.round_number < r) {
-          set.add(pick.hero_name);
+    const banned = new Map<number, Map<number, Set<string>>>();
+    for (const game of GAMES) {
+      const byRound = new Map<number, Set<string>>();
+      for (let r = 1; r <= 4; r++) {
+        const set = new Set<string>();
+        for (const pick of picks) {
+          if (pick.game_number === game && pick.round_number < r) {
+            set.add(pick.hero_name);
+          }
         }
+        byRound.set(r, set);
       }
-      banned.set(r, set);
+      banned.set(game, byRound);
     }
     return banned;
   }, [picks]);
 
   const bannedWithinRound = useMemo(() => {
-    const map = new Map<number, Set<string>>();
+    const map = new Map<number, Map<number, Set<string>>>();
     if (!strictMode) return map;
-    for (let r = 1; r <= 4; r++) {
-      const set = new Set<string>();
-      for (const pick of picks) {
-        if (pick.round_number === r && pick.player_slot === 1) {
-          set.add(pick.hero_name);
+    for (const game of GAMES) {
+      const byRound = new Map<number, Set<string>>();
+      for (let r = 1; r <= 4; r++) {
+        const set = new Set<string>();
+        for (const pick of picks) {
+          if (pick.game_number === game && pick.round_number === r && pick.player_slot === 1) {
+            set.add(pick.hero_name);
+          }
         }
+        byRound.set(r, set);
       }
-      map.set(r, set);
+      map.set(game, byRound);
     }
     return map;
   }, [picks, strictMode]);
@@ -245,11 +253,11 @@ export default function DraftTracker({ pools, picks, participants }: DraftTracke
     toast.success("Draft copied to clipboard");
   };
 
-  const getBannedForCell = (round: number, playerSlot: number): string[] => {
-    const crossRound = bannedByRound.get(round) ?? new Set();
+  const getBannedForCell = (round: number, game: number, playerSlot: number): string[] => {
+    const crossRound = bannedByRound.get(game)?.get(round) ?? new Set<string>();
     const withinRound =
       playerSlot === 2
-        ? bannedWithinRound.get(round) ?? new Set()
+        ? bannedWithinRound.get(game)?.get(round) ?? new Set<string>()
         : new Set<string>();
     return [...new Set([...crossRound, ...withinRound])];
   };
@@ -547,46 +555,54 @@ export default function DraftTracker({ pools, picks, participants }: DraftTracke
           </div>
         </div>
 
-        {ROUNDS.map((round) => {
-          const banned = bannedByRound.get(round);
-          const prevBanned = bannedByRound.get(round - 1);
-          const newBanned =
-            round > 1 && banned && prevBanned
-              ? [...banned].filter((h) => !prevBanned.has(h))
-              : [];
-
+        {filteredGames.map((game) => {
+          const gameBans = bannedByRound.get(game);
           return (
-            <div key={round} className="flex items-start gap-4">
-              <span className="font-mono text-xs text-ink-mist w-16 shrink-0 pt-0.5">
-                Round {round}
-              </span>
-              <div className="flex flex-wrap gap-2">
-                {banned && banned.size === 0 ? (
-                  <span className="font-mono text-xs text-ink-mist/40 italic">
-                    —
-                  </span>
-                ) : null}
-                {banned &&
-                  [...banned].map((hero) => {
-                    const isNew = round > 1 && newBanned.includes(hero);
-                    return (
-                      <span
-                        key={hero}
-                        className={cn(
-                          "font-mono text-[11px] px-2 py-1 border border-vermillion-faded/30 text-ink-mist",
-                          isNew && "animate-slide-up"
-                        )}
-                      >
-                        {hero}
+            <div key={game} className="space-y-3">
+              <span className="font-mono text-sm text-gold">Game {game}</span>
+              {ROUNDS.map((round) => {
+                const banned = gameBans?.get(round);
+                const prevBanned = gameBans?.get(round - 1);
+                const newBanned =
+                  round > 1 && banned && prevBanned
+                    ? [...banned].filter((h) => !prevBanned.has(h))
+                    : [];
+
+                return (
+                  <div key={round} className="flex items-start gap-4">
+                    <span className="font-mono text-xs text-ink-mist w-16 shrink-0 pt-0.5">
+                      Round {round}
+                    </span>
+                    <div className="flex flex-wrap gap-2">
+                      {banned && banned.size === 0 ? (
+                        <span className="font-mono text-xs text-ink-mist/40 italic">
+                          —
+                        </span>
+                      ) : null}
+                      {banned &&
+                        [...banned].map((hero) => {
+                          const isNew = round > 1 && newBanned.includes(hero);
+                          return (
+                            <span
+                              key={hero}
+                              className={cn(
+                                "font-mono text-[11px] px-2 py-1 border border-vermillion-faded/30 text-ink-mist",
+                                isNew && "animate-slide-up"
+                              )}
+                            >
+                              {hero}
+                            </span>
+                          );
+                        })}
+                    </div>
+                    {banned && banned.size > 0 && (
+                      <span className="font-mono text-[11px] text-ink-mist/50 shrink-0 pt-0.5">
+                        ({banned.size})
                       </span>
-                    );
-                  })}
-              </div>
-              {banned && banned.size > 0 && (
-                <span className="font-mono text-[11px] text-ink-mist/50 shrink-0 pt-0.5">
-                  ({banned.size})
-                </span>
-              )}
+                    )}
+                  </div>
+                );
+              })}
             </div>
           );
         })}
@@ -625,7 +641,7 @@ export default function DraftTracker({ pools, picks, participants }: DraftTracke
                 ]
               : []
           }
-          bannedHeroes={getBannedForCell(modalCell.round, modalCell.playerSlot)}
+          bannedHeroes={getBannedForCell(modalCell.round, modalCell.game, modalCell.playerSlot)}
           contextLabel={`Round ${modalCell.round}, Game ${modalCell.game}  ·  ${modalCell.playerSlot === 1 ? "Win" : "Loss"}  ·  ${modalCell.poolName}`}
           onSave={handleSavePick}
         />
