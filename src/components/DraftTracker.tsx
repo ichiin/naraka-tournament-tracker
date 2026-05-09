@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from "react";
+import React, { useMemo, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { Star } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -9,6 +9,7 @@ import {
   useDeleteBanPickPick,
   useUpdateBanPickPool,
   useClearAllBanPickPicks,
+  useSavePicks,
 } from "@/hooks/useTournament";
 import DraftPoolEditor from "@/components/DraftPoolEditor";
 import HeroPickerModal from "@/components/HeroPickerModal";
@@ -37,8 +38,14 @@ export default function DraftTracker({ pools, picks, participants }: DraftTracke
   const deletePick = useDeleteBanPickPick();
   const updatePool = useUpdateBanPickPool();
   const clearAll = useClearAllBanPickPicks();
+  const saveTrackerPick = useSavePicks();
 
-  const [strictMode, setStrictMode] = useState(true);
+  const strictKey = `draft-strict-${tournamentId}`;
+  const [strictMode, setStrictMode] = useState(() => {
+    const stored = localStorage.getItem(strictKey);
+    return stored !== null ? stored === "true" : false;
+  });
+  const [selectedGame, setSelectedGame] = useState<number | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalCell, setModalCell] = useState<{
     round: number;
@@ -49,6 +56,14 @@ export default function DraftTracker({ pools, picks, participants }: DraftTracke
     playerName: string;
   } | null>(null);
   const [flashCells, setFlashCells] = useState<Set<string>>(new Set());
+
+  const participantMap = useMemo(() => {
+    const map = new Map<string, Participant>();
+    for (const p of participants) {
+      map.set(p.name, p);
+    }
+    return map;
+  }, [participants]);
 
   const poolMap = useMemo(() => {
     const map = new Map<number, BanPickPool>();
@@ -108,6 +123,14 @@ export default function DraftTracker({ pools, picks, participants }: DraftTracke
   const totalFilled = picks.length;
   const totalCells = 32;
 
+  const handleStrictToggle = () => {
+    const next = !strictMode;
+    setStrictMode(next);
+    localStorage.setItem(strictKey, String(next));
+  };
+
+  const filteredGames = selectedGame ? GAMES.filter((g) => g === selectedGame) : GAMES;
+
   const triggerFlash = useCallback((key: string) => {
     setFlashCells((prev) => {
       const next = new Set(prev);
@@ -164,6 +187,23 @@ export default function DraftTracker({ pools, picks, participants }: DraftTracke
         gameNumber: modalCell.game,
         playerSlot: modalCell.playerSlot,
       });
+    }
+
+    const pool = pools.find((p) => p.id === modalCell.poolId);
+    const playerName =
+      modalCell.playerSlot === 1
+        ? pool?.win_player_name
+        : pool?.loss_player_name;
+    if (playerName) {
+      const participant = participantMap.get(playerName);
+      if (participant) {
+        await saveTrackerPick.mutateAsync({
+          tournamentId,
+          participantId: participant.id,
+          gameNumber: modalCell.game,
+          heroes: heroName ? [heroName] : [],
+        });
+      }
     }
 
     triggerFlash(`${modalCell.round}-${modalCell.game}-${modalCell.playerSlot}`);
@@ -223,17 +263,14 @@ export default function DraftTracker({ pools, picks, participants }: DraftTracke
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-        <div>
+        <div className="flex items-center gap-3">
           <h2 className="font-display text-sm text-ink-DEFAULT uppercase tracking-wide">
             Draft Tracker
           </h2>
-        </div>
-
-        <div className="flex items-center gap-3">
           <button
-            onClick={() => setStrictMode(!strictMode)}
+            onClick={handleStrictToggle}
             className={cn(
               "flex items-center gap-1.5 font-mono text-[10px] px-2 py-1 border transition-colors",
               strictMode
@@ -249,7 +286,9 @@ export default function DraftTracker({ pools, picks, participants }: DraftTracke
             />
             Strict {strictMode ? "ON" : "OFF"}
           </button>
+        </div>
 
+        <div className="flex items-center gap-3">
           <span
             className={cn(
               "font-mono text-xs tabular-nums",
@@ -314,6 +353,34 @@ export default function DraftTracker({ pools, picks, participants }: DraftTracke
         })}
       </div>
 
+      <div className="flex gap-1">
+        <button
+          onClick={() => setSelectedGame(null)}
+          className={cn(
+            "font-mono text-[11px] px-3 py-1.5 border transition-colors",
+            selectedGame === null
+              ? "border-amber/60 text-amber bg-amber-wash/5"
+              : "border-ink-border text-ink-mist hover:text-ink-DEFAULT"
+          )}
+        >
+          All
+        </button>
+        {GAMES.map((game) => (
+          <button
+            key={game}
+            onClick={() => setSelectedGame(game)}
+            className={cn(
+              "font-mono text-[11px] px-3 py-1.5 border transition-colors",
+              selectedGame === game
+                ? "border-amber/60 text-amber bg-amber-wash/5"
+                : "border-ink-border text-ink-mist hover:text-ink-DEFAULT"
+            )}
+          >
+            G{game}
+          </button>
+        ))}
+      </div>
+
       <div className="overflow-x-auto -mx-6 px-6">
         <table className="w-full border-collapse">
           <thead>
@@ -350,8 +417,8 @@ export default function DraftTracker({ pools, picks, participants }: DraftTracke
             </tr>
           </thead>
           <tbody>
-            {GAMES.map((game, gi) => (
-              <>
+            {filteredGames.map((game, gi) => (
+              <React.Fragment key={game}>
                 {SLOTS.map((slot, si) => {
                   const isWin = slot.value === 1;
                   return (
@@ -417,30 +484,24 @@ export default function DraftTracker({ pools, picks, participants }: DraftTracke
                               aria-label={`Round ${round}, Game ${game}, ${slot.label}${cellPick ? `, hero: ${cellPick.hero_name}` : ", no pick"}`}
                               className={cn(
                                 "flex flex-col items-center justify-center gap-0.5 cursor-pointer",
-                                "hover:bg-amber-wash/10 rounded transition-colors min-h-[56px] min-w-[70px] p-1 w-full",
+                                "hover:bg-amber-wash/10 rounded transition-colors min-h-[60px] min-w-[90px] p-1.5 w-full",
                                 isWin &&
                                   "border-l-2 border-amber/30"
                               )}
                             >
-                              <div className="flex items-center gap-1">
-                                <span className="font-mono text-[8px] text-ink-mist/40">
-                                  p{poolNumber}
-                                </span>
-                                {playerName && (
-                                  <span
-                                    className={cn(
-                                      "font-body text-[9px] truncate max-w-[60px]",
-                                      isWin
-                                        ? "text-gold/80"
-                                        : "text-ink-mist/60"
-                                    )}
-                                  >
-                                    {playerName}
-                                  </span>
+                              <span
+                                className={cn(
+                                  "font-body text-[10px] truncate max-w-[80px] leading-tight",
+                                  isWin
+                                    ? "text-gold/80"
+                                    : "text-ink-mist/60",
+                                  !playerName && "italic text-ink-mist/30"
                                 )}
-                              </div>
+                              >
+                                {playerName || "—"}
+                              </span>
                               {cellPick ? (
-                                <div className="w-8 h-8 shrink-0">
+                                <div className="w-9 h-9 shrink-0 flex items-center justify-center">
                                   <HeroCard
                                     name={cellPick.hero_name}
                                     size="sm"
@@ -458,7 +519,7 @@ export default function DraftTracker({ pools, picks, participants }: DraftTracke
                     </tr>
                   );
                 })}
-              </>
+              </React.Fragment>
             ))}
           </tbody>
         </table>

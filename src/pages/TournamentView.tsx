@@ -1,10 +1,20 @@
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Share2, Settings, Swords } from "lucide-react";
+import { Share2, Settings, Swords, Table2 } from "lucide-react";
 import { toast } from "sonner";
-import { useTournament, useParticipants, usePicks } from "@/hooks/useTournament";
+import {
+  useTournament,
+  useParticipants,
+  usePicks,
+  useBanPickPools,
+  useBanPickPicks,
+  useInitializeBanPickPools,
+} from "@/hooks/useTournament";
 import PickTable from "@/components/PickTable";
+import DraftTracker from "@/components/DraftTracker";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export default function TournamentView() {
   const { id } = useParams<{ id: string }>();
@@ -12,6 +22,18 @@ export default function TournamentView() {
   const { data: tournament, isLoading: tLoading } = useTournament(id ?? "");
   const { data: participants } = useParticipants(id ?? "");
   const { data: picks } = usePicks(id ?? "");
+  const { data: pools, isLoading: pLoading } = useBanPickPools(id ?? "");
+  const { data: draftPicks } = useBanPickPicks(id ?? "");
+  const initPools = useInitializeBanPickPools();
+
+  const [showPicks, setShowPicks] = useState(true);
+  const [showDraft, setShowDraft] = useState(true);
+
+  useEffect(() => {
+    if (pools && pools.length === 0 && !pLoading && id) {
+      initPools.mutate(id);
+    }
+  }, [pools?.length, pLoading, id]);
 
   if (tLoading) {
     return (
@@ -80,17 +102,34 @@ export default function TournamentView() {
         </div>
 
         <div className="flex gap-2">
-          <Link to={`/tournament/${id}/draft`}>
-            <Button
-              variant="outline"
-              size="sm"
-              className="border-amber/30 text-amber hover:border-amber hover:bg-amber-wash/10
-                         font-body text-xs gap-2"
-            >
-              <Swords className="h-3.5 w-3.5" />
-              Draft
-            </Button>
-          </Link>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowPicks(!showPicks)}
+            className={cn(
+              "font-body text-xs gap-2",
+              showPicks
+                ? "border-amber/30 text-amber hover:border-amber hover:bg-amber-wash/10"
+                : "border-ink-border text-ink-mist hover:text-amber hover:border-amber/40"
+            )}
+          >
+            <Table2 className="h-3.5 w-3.5" />
+            Picks
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowDraft(!showDraft)}
+            className={cn(
+              "font-body text-xs gap-2",
+              showDraft
+                ? "border-amber/30 text-amber hover:border-amber hover:bg-amber-wash/10"
+                : "border-ink-border text-ink-mist hover:text-amber hover:border-amber/40"
+            )}
+          >
+            <Swords className="h-3.5 w-3.5" />
+            Draft
+          </Button>
           <Button
             variant="outline"
             size="sm"
@@ -115,20 +154,34 @@ export default function TournamentView() {
         </div>
       </div>
 
-      <div className="space-y-4">
-        <h2 className="font-display text-sm text-ink-DEFAULT uppercase tracking-wide">
-          Pick Table
-        </h2>
+      {showPicks && (
+        <div className="space-y-4">
+          <h2 className="font-display text-sm text-ink-DEFAULT uppercase tracking-wide">
+            Pick Table
+          </h2>
 
-        <div className="bg-ink-surface border border-ink-border rounded-lg p-4">
-          <PickTable
-            participants={participants || []}
-            picks={picks || []}
-            numGames={tournament.num_games}
-            mode={tournament.mode}
-          />
+          <div className="bg-ink-surface border border-ink-border rounded-lg p-4">
+            <PickTable
+              participants={participants || []}
+              picks={picks || []}
+              numGames={tournament.num_games}
+              mode={tournament.mode}
+            />
+          </div>
         </div>
-      </div>
+      )}
+
+      {showDraft && (
+        <div className="space-y-4">
+          <div className="bg-ink-surface border border-ink-border rounded-lg p-6">
+            <DraftTracker
+              pools={pools || []}
+              picks={draftPicks || []}
+              participants={participants || []}
+            />
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 }
