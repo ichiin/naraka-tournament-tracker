@@ -46,7 +46,7 @@ const HERO_ICON_SLUG: Record<string, string> = {
 
 export function heroToIconPath(name: string): string {
   const slug = HERO_ICON_SLUG[name] || heroToSlug(name);
-  return `/heroes/${slug}.png`;
+  return `${import.meta.env.BASE_URL}heroes/${slug}.png`;
 }
 
 export const HERO_COLORS: Record<string, string> = {
