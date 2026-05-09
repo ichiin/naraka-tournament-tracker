@@ -11,10 +11,9 @@ import {
 export default function TournamentSetup() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  if (!id) return null;
 
-  const { data: tournament, isLoading } = useTournament(id);
-  const { data: participants } = useParticipants(id);
+  const { data: tournament, isLoading } = useTournament(id ?? "");
+  const { data: participants } = useParticipants(id ?? "");
   const updateTournament = useUpdateTournament();
 
   const handleSubmit = async (values: {
@@ -24,6 +23,7 @@ export default function TournamentSetup() {
     num_games: number;
     teamNames?: string[];
   }) => {
+    if (!id) return;
     await updateTournament.mutateAsync({
       id,
       name: values.name,
@@ -39,14 +39,14 @@ export default function TournamentSetup() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="font-display text-lg text-gold animate-pulse tracking-widest">
+        <div className="font-display text-lg text-gold animate-pulse tracking-wide">
           Loading...
         </div>
       </div>
     );
   }
 
-  if (!tournament) {
+  if (!id || !tournament) {
     return (
       <div className="text-center py-20">
         <h1 className="font-display text-3xl text-ink-DEFAULT mb-4">
@@ -54,7 +54,7 @@ export default function TournamentSetup() {
         </h1>
         <Link
           to="/"
-          className="font-body text-gold hover:text-gold-light transition-colors"
+          className="font-body text-amber hover:text-gold-light transition-colors"
         >
           Create a new tournament
         </Link>
@@ -71,12 +71,12 @@ export default function TournamentSetup() {
     >
       <Link
         to={`/tournament/${id}`}
-        className="font-body text-sm text-ink-mist hover:text-gold transition-colors"
+        className="font-body text-sm text-ink-mist hover:text-amber transition-colors"
       >
-        &larr; Back to tournament
+        Back to tournament
       </Link>
 
-      <h1 className="font-display text-3xl font-bold text-ink-DEFAULT tracking-[0.1em] mt-4 mb-8">
+      <h1 className="font-display text-3xl font-bold text-ink-DEFAULT mt-4 mb-8">
         Tournament Setup
       </h1>
 
@@ -84,7 +84,7 @@ export default function TournamentSetup() {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.15, duration: 0.4 }}
-        className="bg-ink-surface border border-ink-border rounded-lg p-8 relative corner-brackets"
+        className="bg-ink-surface border border-ink-border rounded-lg p-8"
       >
         <TournamentForm
           defaultValues={{

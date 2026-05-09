@@ -76,7 +76,7 @@ export default function TournamentForm({
         <div className="space-y-2">
           <Label
             htmlFor="name"
-            className="font-body text-sm text-ink-DEFAULT tracking-wide"
+            className="font-body text-sm text-ink-DEFAULT"
           >
             Tournament Name
           </Label>
@@ -85,7 +85,7 @@ export default function TournamentForm({
             {...form.register("name")}
             placeholder="NBPL Season 1 Finals"
             className="bg-ink-void border-ink-border text-ink-DEFAULT font-body placeholder:text-ink-mist/50
-                       focus-visible:ring-vermillion/50 h-11"
+                       focus-visible:ring-amber/50 h-11"
           />
           {form.formState.errors.name && (
             <p className="text-xs text-vermillion">
@@ -95,14 +95,14 @@ export default function TournamentForm({
         </div>
 
         <div className="space-y-2">
-          <Label className="font-body text-sm text-ink-DEFAULT tracking-wide">
+          <Label className="font-body text-sm text-ink-DEFAULT">
             Game Mode
           </Label>
           <div className="flex gap-3">
             <button
               type="button"
               onClick={() => form.setValue("mode", "solo")}
-              className={`flex-1 py-2.5 font-display text-sm tracking-wider border transition-all duration-300
+              className={`flex-1 py-2.5 font-display text-base border transition-all duration-300
                 ${mode === "solo"
                   ? "border-jade bg-jade/10 text-jade"
                   : "border-ink-border bg-ink-void text-ink-mist hover:border-ink-mist/50"
@@ -113,9 +113,9 @@ export default function TournamentForm({
             <button
               type="button"
               onClick={() => form.setValue("mode", "trios")}
-              className={`flex-1 py-2.5 font-display text-sm tracking-wider border transition-all duration-300
+              className={`flex-1 py-2.5 font-display text-base border transition-all duration-300
                 ${mode === "trios"
-                  ? "border-vermillion bg-vermillion/10 text-vermillion"
+                  ? "border-amber bg-amber/10 text-amber"
                   : "border-ink-border bg-ink-void text-ink-mist hover:border-ink-mist/50"
                 }`}
             >
@@ -128,17 +128,18 @@ export default function TournamentForm({
           <div className="space-y-2">
             <Label
               htmlFor="num_participants"
-              className="font-body text-sm text-ink-DEFAULT tracking-wide"
+              className="font-body text-sm text-ink-DEFAULT"
             >
               {mode === "solo" ? "Players" : "Teams"}
             </Label>
             <Input
               id="num_participants"
               type="number"
+              inputMode="numeric"
               min={2}
               {...form.register("num_participants", { valueAsNumber: true })}
               className="bg-ink-void border-ink-border text-ink-DEFAULT font-mono
-                         focus-visible:ring-vermillion/50 h-11"
+                         focus-visible:ring-amber/50 h-11"
             />
             {form.formState.errors.num_participants && (
               <p className="text-xs text-vermillion">
@@ -150,17 +151,18 @@ export default function TournamentForm({
           <div className="space-y-2">
             <Label
               htmlFor="num_games"
-              className="font-body text-sm text-ink-DEFAULT tracking-wide"
+              className="font-body text-sm text-ink-DEFAULT"
             >
               Games
             </Label>
             <Input
               id="num_games"
               type="number"
+              inputMode="numeric"
               min={1}
               {...form.register("num_games", { valueAsNumber: true })}
               className="bg-ink-void border-ink-border text-ink-DEFAULT font-mono
-                         focus-visible:ring-vermillion/50 h-11"
+                         focus-visible:ring-amber/50 h-11"
             />
             {form.formState.errors.num_games && (
               <p className="text-xs text-vermillion">
@@ -172,7 +174,7 @@ export default function TournamentForm({
 
         {mode === "trios" && (
           <div className="space-y-3">
-            <Label className="font-body text-sm text-ink-DEFAULT tracking-wide">
+            <Label className="font-body text-sm text-ink-DEFAULT">
               Team Names
             </Label>
             <div className="space-y-2">
@@ -187,7 +189,7 @@ export default function TournamentForm({
                   }}
                   placeholder={`Team ${i + 1}`}
                   className="bg-ink-void border-ink-border text-ink-DEFAULT font-body
-                             focus-visible:ring-vermillion/50 h-10"
+                             focus-visible:ring-amber/50 h-10"
                 />
               ))}
             </div>
@@ -203,9 +205,8 @@ export default function TournamentForm({
       <Button
         type="submit"
         disabled={isSubmitting}
-        className="w-full h-12 bg-vermillion hover:bg-vermillion/80 text-white font-display text-sm
-                   tracking-[0.2em] uppercase transition-all duration-300 border-vermillion
-                   hover:shadow-[0_0_20px_rgba(197,48,48,0.4)] animate-pulse-glow"
+        className="w-full h-12 bg-amber hover:bg-amber/80 text-primary-foreground font-display text-base
+                   tracking-wide uppercase transition-all duration-300"
       >
         {isSubmitting ? "Creating..." : submitLabel}
       </Button>

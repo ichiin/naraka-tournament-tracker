@@ -1,7 +1,8 @@
 import type { Config } from "tailwindcss";
+import tailwindcssAnimate from "tailwindcss-animate";
 
 export default {
-  darkMode: ["class"],
+  darkMode: "media",
   content: ["./index.html", "./src/**/*.{ts,tsx}"],
   prefix: "",
   theme: {
@@ -14,8 +15,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ["Cinzel", "Georgia", "serif"],
-        body: ["Crimson Pro", "Georgia", "serif"],
+        display: ["DM Serif Display", "Georgia", "serif"],
+        body: ["DM Sans", "system-ui", "sans-serif"],
         mono: ["JetBrains Mono", "monospace"],
       },
       colors: {
@@ -52,24 +53,30 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        vermillion: {
-          DEFAULT: "#C53030",
-          faded: "#8B2525",
-          wash: "rgba(197,48,48,0.08)",
+        amber: {
+          DEFAULT: "#E8A840",
+          faded: "#B8862D",
+          wash: "rgba(232,168,64,0.08)",
+          glow: "rgba(232,168,64,0.20)",
         },
         gold: {
-          DEFAULT: "#D4A85C",
-          light: "#E8D5A3",
+          DEFAULT: "#F0C060",
+          light: "#F5D898",
         },
         jade: {
-          DEFAULT: "#4A9E8E",
+          DEFAULT: "#3DA89E",
         },
         ink: {
-          DEFAULT: "#E8E0D5",
-          void: "#0D0B0F",
-          surface: "#16131A",
-          border: "#2A2430",
-          mist: "#6B6378",
+          DEFAULT: "#EFE9DC",
+          void: "#121114",
+          surface: "#1A181D",
+          border: "#2E2A2E",
+          mist: "#8A8278",
+        },
+        vermillion: {
+          DEFAULT: "#D94444",
+          faded: "#A83232",
+          wash: "rgba(217,68,68,0.08)",
         },
       },
       borderRadius: {
@@ -78,35 +85,20 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       keyframes: {
-        "ink-spread": {
-          "0%": { clipPath: "circle(0% at 50% 50%)", opacity: "0" },
-          "100%": { clipPath: "circle(150% at 50% 50%)", opacity: "1" },
-        },
-        "pulse-glow": {
-          "0%, 100%": { boxShadow: "0 0 8px rgba(197,48,48,0.4)" },
-          "50%": { boxShadow: "0 0 20px rgba(197,48,48,0.7)" },
+        "slide-up": {
+          "0%": { opacity: "0", transform: "translateY(12px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
         },
         "bar-expand": {
           "0%": { transform: "scaleX(0)", opacity: "0" },
           "100%": { transform: "scaleX(1)", opacity: "1" },
         },
-        "slide-up": {
-          "0%": { opacity: "0", transform: "translateY(12px)" },
-          "100%": { opacity: "1", transform: "translateY(0)" },
-        },
-        "border-fill": {
-          "0%": { transform: "scaleX(0)" },
-          "100%": { transform: "scaleX(1)" },
-        },
       },
       animation: {
-        "ink-spread": "ink-spread 0.4s ease-out",
-        "pulse-glow": "pulse-glow 2s ease-in-out infinite",
-        "bar-expand": "bar-expand 0.5s ease-out forwards",
         "slide-up": "slide-up 0.3s ease-out forwards",
-        "border-fill": "border-fill 0.3s ease-out forwards",
+        "bar-expand": "bar-expand 0.5s ease-out forwards",
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [tailwindcssAnimate],
 } satisfies Config;

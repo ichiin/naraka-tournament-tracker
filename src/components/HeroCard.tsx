@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { memo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { heroToIconPath, HERO_COLORS } from "@/lib/heroes";
 
@@ -10,7 +10,7 @@ interface HeroCardProps {
   size?: "sm" | "md" | "lg";
 }
 
-export default function HeroCard({
+const HeroCard = memo(function HeroCard({
   name,
   selected,
   disabled,
@@ -32,16 +32,17 @@ export default function HeroCard({
     .slice(0, 2)
     .toUpperCase();
 
-  const color = HERO_COLORS[name] || "#6B6378";
+  const color = HERO_COLORS[name] || "#8A8278";
 
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled}
+      aria-label={name}
       className={cn(
         "relative flex flex-col items-center gap-1 group transition-all duration-200",
-        "focus:outline-none",
+        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber",
         !disabled && "cursor-pointer",
         disabled && "opacity-40 cursor-not-allowed"
       )}
@@ -52,9 +53,10 @@ export default function HeroCard({
           "relative overflow-hidden transition-all duration-300",
           "border-2",
           selected
-            ? "border-vermillion shadow-[0_0_12px_rgba(197,48,48,0.5)] scale-105"
+            ? "border-amber shadow-[0_0_12px_hsl(38,75%,52%/0.4)] scale-105"
             : "border-ink-border group-hover:border-ink-mist/60",
-          !disabled && "group-hover:scale-105"
+          !disabled && "group-hover:scale-105",
+          "[will-change:transform]"
         )}
       >
         {!imgError ? (
@@ -62,6 +64,7 @@ export default function HeroCard({
             src={heroToIconPath(name)}
             alt={name}
             className="w-full h-full object-cover"
+            loading="lazy"
             onError={() => setImgError(true)}
           />
         ) : (
@@ -74,7 +77,7 @@ export default function HeroCard({
         )}
 
         {selected && (
-          <div className="absolute inset-0 bg-vermillion/20" />
+          <div className="absolute inset-0 bg-amber/20" />
         )}
       </div>
 
@@ -91,4 +94,6 @@ export default function HeroCard({
       </span>
     </button>
   );
-}
+});
+
+export default HeroCard;

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import type { Pick, Participant } from "@/hooks/useTournament";
 import { useUpdateParticipant } from "@/hooks/useTournament";
@@ -26,6 +26,20 @@ export default function PickTable({
   const [modalOpen, setModalOpen] = useState(false);
   const [modalParticipant, setModalParticipant] = useState<Participant | null>(null);
   const [modalGameNumber, setModalGameNumber] = useState<number | null>(null);
+
+  const pickMap = useMemo(() => {
+    const map = new Map<string, Pick[]>();
+    for (const pick of picks) {
+      const key = `${pick.participant_id}-${pick.game_number}`;
+      const existing = map.get(key);
+      if (existing) {
+        existing.push(pick);
+      } else {
+        map.set(key, [pick]);
+      }
+    }
+    return map;
+  }, [picks]);
 
   if (participants.length === 0) {
     return (
@@ -65,13 +79,13 @@ export default function PickTable({
       <table className="w-full border-collapse">
         <thead>
           <tr>
-            <th className="sticky left-0 bg-ink-surface z-10 text-left font-display text-xs text-gold tracking-[0.15em] uppercase py-3 pr-4 border-b border-ink-border min-w-[120px]">
+            <th className="sticky left-0 bg-ink-surface z-10 text-left font-display text-xs text-gold tracking-wide uppercase py-3 pr-4 border-b border-ink-border min-w-[120px]">
               {mode === "solo" ? "Player" : "Team"}
             </th>
             {Array.from({ length: numGames }, (_, i) => (
               <th
                 key={i}
-                className="text-center font-mono text-xs text-ink-mist py-3 px-2 border-b border-ink-border min-w-[80px]"
+                className="text-center font-mono text-xs text-ink-mist py-3 px-2 border-b border-ink-border min-w-[88px]"
               >
                 G{i + 1}
               </th>
@@ -90,7 +104,7 @@ export default function PickTable({
                 className="sticky left-0 z-10 py-3 pr-4 border-b border-ink-border/50 font-body text-sm text-ink-DEFAULT"
                 style={{
                   backgroundColor:
-                    idx % 2 === 0 ? "rgb(13,11,15,0.3)" : "transparent",
+                    idx % 2 === 0 ? "rgb(18,17,20,0.3)" : "transparent",
                 }}
               >
                 {editingId === p.id ? (
@@ -106,7 +120,8 @@ export default function PickTable({
                         setEditValue("");
                       }
                     }}
-                    className="bg-ink-void border border-vermillion/50 text-ink-DEFAULT font-body text-sm px-2 py-0.5 w-full max-w-[140px] focus:outline-none"
+                    aria-label={`Edit name for ${p.name}`}
+                    className="bg-ink-void border border-amber/50 text-ink-DEFAULT font-body text-sm px-2 py-0.5 w-full max-w-[140px] focus-visible:outline-2 focus-visible:outline-amber"
                   />
                 ) : (
                   <button
@@ -114,7 +129,8 @@ export default function PickTable({
                       setEditingId(p.id);
                       setEditValue(p.name);
                     }}
-                    className="hover:text-gold transition-colors cursor-text text-left w-full"
+                    aria-label={`Edit name: ${p.name}`}
+                    className="hover:text-amber transition-colors cursor-text text-left w-full"
                   >
                     {p.name}
                   </button>
@@ -122,11 +138,7 @@ export default function PickTable({
               </td>
               {Array.from({ length: numGames }, (_, gi) => {
                 const gameNumber = gi + 1;
-                const cellPicks = picks.filter(
-                  (pick) =>
-                    pick.participant_id === p.id &&
-                    pick.game_number === gameNumber
-                );
+                const cellPicks = pickMap.get(`${p.id}-${gameNumber}`) || [];
 
                 const hasPicks = cellPicks.length > 0;
                 const allFilled = cellPicks.length === maxHeroes;
@@ -138,9 +150,9 @@ export default function PickTable({
                   >
                     <button
                       onClick={() => handleCellClick(p, gameNumber)}
+                      aria-label={`${p.name}, game ${gameNumber}${hasPicks ? `, picks: ${cellPicks.map(cp => cp.hero_name).join(", ")}` : ", no picks yet"}`}
                       className="flex flex-wrap items-center justify-center gap-0.5 cursor-pointer
-                                 hover:bg-vermillion-wash/10 rounded transition-colors min-h-[36px] min-w-[60px] p-1"
-                      title={`Game ${gameNumber} - ${p.name}`}
+                                 hover:bg-amber-wash/10 rounded transition-colors min-h-[44px] min-w-[68px] p-1"
                     >
                       {hasPicks ? (
                         cellPicks.map((pick) => (
@@ -152,12 +164,12 @@ export default function PickTable({
                           </div>
                         ))
                       ) : (
-                        <span className="font-mono text-[9px] text-ink-mist/40">
-                          —
+                        <span className="font-mono text-[9px] text-ink-mist/50">
+                          &mdash;
                         </span>
                       )}
                       {hasPicks && !allFilled && (
-                        <span className="font-mono text-[9px] text-vermillion/60 ml-0.5">
+                        <span className="font-mono text-[9px] text-amber/60 ml-0.5">
                           +{maxHeroes - cellPicks.length}
                         </span>
                       )}

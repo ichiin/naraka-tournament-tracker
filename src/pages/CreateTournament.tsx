@@ -46,11 +46,11 @@ export default function CreateTournament() {
       className="max-w-xl mx-auto"
     >
       <div className="mb-10 text-center">
-        <h1 className="font-display text-4xl font-bold text-ink-DEFAULT tracking-[0.15em] mb-3">
+        <h1 className="font-display text-4xl font-bold text-ink-DEFAULT mb-3">
           New Tournament
         </h1>
-        <p className="font-body text-ink-mist text-lg italic">
-          Chronicle the picks. Reveal the patterns.
+        <p className="font-body text-ink-mist text-lg">
+          Track hero picks across games. Solo or trios. No login.
         </p>
       </div>
 
@@ -58,7 +58,7 @@ export default function CreateTournament() {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.4 }}
-        className="bg-ink-surface border border-ink-border rounded-lg p-8 relative corner-brackets"
+        className="bg-ink-surface border border-ink-border rounded-lg p-8"
       >
         <TournamentForm
           onSubmit={handleSubmit}
@@ -67,7 +67,7 @@ export default function CreateTournament() {
       </motion.div>
 
       <p className="text-center mt-8 font-mono text-xs text-ink-mist tracking-wider">
-        27 HEROES &middot; SOLO & TRIOS &middot; NO LOGIN REQUIRED
+        27 HEROES &middot; SOLO &amp; TRIOS &middot; NO LOGIN REQUIRED
       </p>
     </motion.div>
   );

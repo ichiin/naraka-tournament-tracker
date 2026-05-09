@@ -6,23 +6,28 @@ export default function Layout() {
   const isHome = location.pathname === "/";
 
   return (
-    <div className="min-h-screen ink-texture ink-wash-bg relative">
-      <nav className="border-b border-ink-border/50 bg-ink-void/80 backdrop-blur-sm sticky top-0 z-50">
+    <div className="min-h-screen relative">
+      <a href="#main-content" className="skip-to-content">
+        Skip to content
+      </a>
+
+      <nav className="border-b border-ink-border/50 bg-ink-void/90 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
           <Link
             to="/"
             className="flex items-center gap-2.5 group no-underline"
+            aria-label="Home"
           >
-            <Swords className="h-5 w-5 text-vermillion transition-transform group-hover:rotate-12" />
-            <span className="font-display text-sm font-semibold tracking-[0.2em] text-ink-DEFAULT uppercase">
-              Tournament Scrolls
+            <Swords className="h-5 w-5 text-amber transition-transform group-hover:rotate-12" />
+            <span className="font-display text-base font-semibold tracking-tight text-ink-DEFAULT">
+              Naraka Tracker
             </span>
           </Link>
 
           {!isHome && (
             <Link
               to="/"
-              className="font-body text-sm text-ink-mist hover:text-vermillion transition-colors duration-200"
+              className="font-body text-sm text-ink-mist hover:text-amber transition-colors duration-200"
             >
               New Tournament
             </Link>
@@ -30,7 +35,7 @@ export default function Layout() {
         </div>
       </nav>
 
-      <main className="max-w-7xl mx-auto px-6 py-10">
+      <main id="main-content" className="max-w-7xl mx-auto px-6 py-10">
         <Outlet />
       </main>
 

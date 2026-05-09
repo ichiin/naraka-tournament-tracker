@@ -78,7 +78,7 @@ export default function HeroPickerModal({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {participant.name} &mdash; Game {gameNumber}
+            {participant.name}, Game {gameNumber}
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
@@ -105,7 +105,7 @@ export default function HeroPickerModal({
               size="sm"
               onClick={handleSave}
               disabled={savePicks.isPending}
-              className="bg-vermillion hover:bg-vermillion/80 text-white font-body text-xs gap-2"
+              className="bg-amber hover:bg-amber/80 text-primary-foreground font-body text-xs gap-2"
             >
               <Check className="h-3.5 w-3.5" />
               {savePicks.isPending ? "Saving..." : "Save"}

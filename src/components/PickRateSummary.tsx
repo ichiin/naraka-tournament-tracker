@@ -15,7 +15,7 @@ export default function PickRateSummary({
 
   return (
     <div className="space-y-3">
-      <h3 className="font-display text-sm text-gold tracking-[0.15em] uppercase">
+      <h3 className="font-display text-sm text-gold tracking-wide">
         Pick Rates
       </h3>
 
@@ -49,7 +49,7 @@ export default function PickRateSummary({
                 </div>
                 <div className="h-1 bg-ink-void overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-vermillion to-gold origin-left"
+                    className="h-full bg-gradient-to-r from-amber to-gold origin-left [will-change:transform]"
                     style={{
                       width: `${widthPct}%`,
                       animationDelay: `${i * 40}ms`,

@@ -8,23 +8,22 @@ import { Button } from "@/components/ui/button";
 
 export default function TournamentView() {
   const { id } = useParams<{ id: string }>();
-  if (!id) return null;
 
-  const { data: tournament, isLoading: tLoading } = useTournament(id);
-  const { data: participants } = useParticipants(id);
-  const { data: picks } = usePicks(id);
+  const { data: tournament, isLoading: tLoading } = useTournament(id ?? "");
+  const { data: participants } = useParticipants(id ?? "");
+  const { data: picks } = usePicks(id ?? "");
 
   if (tLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="font-display text-lg text-gold animate-pulse tracking-widest">
+        <div className="font-display text-lg text-gold animate-pulse tracking-wide">
           Loading...
         </div>
       </div>
     );
   }
 
-  if (!tournament) {
+  if (!id || !tournament) {
     return (
       <div className="text-center py-20">
         <h1 className="font-display text-3xl text-ink-DEFAULT mb-4">
@@ -32,7 +31,7 @@ export default function TournamentView() {
         </h1>
         <Link
           to="/"
-          className="font-body text-gold hover:text-gold-light transition-colors"
+          className="font-body text-amber hover:text-gold-light transition-colors"
         >
           Create a new tournament
         </Link>
@@ -60,15 +59,15 @@ export default function TournamentView() {
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-3 mb-1">
-            <h1 className="font-display text-3xl font-bold text-ink-DEFAULT tracking-[0.1em]">
+            <h1 className="font-display text-3xl font-bold text-ink-DEFAULT">
               {tournament.name}
             </h1>
             <span
-              className={`font-mono text-[10px] px-2 py-0.5 border uppercase tracking-wider $
-                {tournament.mode === "solo"
+              className={`font-mono text-[10px] px-2 py-0.5 border uppercase tracking-wider ${
+                tournament.mode === "solo"
                   ? "border-jade text-jade"
-                  : "border-vermillion text-vermillion"
-                }`}
+                  : "border-amber text-amber"
+              }`}
             >
               {tournament.mode}
             </span>
@@ -86,7 +85,7 @@ export default function TournamentView() {
             variant="outline"
             size="sm"
             onClick={handleShare}
-            className="border-ink-border text-ink-mist hover:text-vermillion hover:border-vermillion/40
+            className="border-ink-border text-ink-mist hover:text-amber hover:border-amber/40
                        font-body text-xs gap-2"
           >
             <Share2 className="h-3.5 w-3.5" />
@@ -107,7 +106,7 @@ export default function TournamentView() {
       </div>
 
       <div className="space-y-4">
-        <h2 className="font-display text-sm text-ink-DEFAULT tracking-[0.15em] uppercase">
+        <h2 className="font-display text-sm text-ink-DEFAULT uppercase tracking-wide">
           Pick Table
         </h2>
 
