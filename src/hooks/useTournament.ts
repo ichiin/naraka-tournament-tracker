@@ -31,8 +31,8 @@ export interface BanPickPool {
   tournament_id: string;
   pool_number: number;
   name: string;
-  player_name: string;
-  won_duel: boolean;
+  win_player_name: string;
+  loss_player_name: string;
   created_at: string;
 }
 
@@ -42,6 +42,7 @@ export interface BanPickPick {
   round_number: number;
   game_number: number;
   pool_id: string;
+  player_slot: number;
   hero_name: string;
 }
 
@@ -281,8 +282,8 @@ export function useInitializeBanPickPools() {
         tournament_id: tournamentId,
         pool_number: poolNumber,
         name: `Pool ${poolNumber}`,
-        player_name: "",
-        won_duel: false,
+        win_player_name: "",
+        loss_player_name: "",
       }));
 
       const { data, error } = await supabase
@@ -311,7 +312,7 @@ export function useUpdateBanPickPool() {
     }: {
       id: string;
       tournamentId: string;
-      updates: { name?: string; player_name?: string; won_duel?: boolean };
+      updates: { name?: string; win_player_name?: string; loss_player_name?: string };
     }) => {
       const { error } = await supabase
         .from("banpick_pools")
@@ -337,12 +338,14 @@ export function useSaveBanPickPick() {
       roundNumber,
       gameNumber,
       poolId,
+      playerSlot,
       heroName,
     }: {
       tournamentId: string;
       roundNumber: number;
       gameNumber: number;
       poolId: string;
+      playerSlot: number;
       heroName: string;
     }) => {
       const { error: delError } = await supabase
@@ -350,7 +353,8 @@ export function useSaveBanPickPick() {
         .delete()
         .eq("tournament_id", tournamentId)
         .eq("round_number", roundNumber)
-        .eq("game_number", gameNumber);
+        .eq("game_number", gameNumber)
+        .eq("player_slot", playerSlot);
 
       if (delError) throw delError;
 
@@ -361,6 +365,7 @@ export function useSaveBanPickPick() {
           round_number: roundNumber,
           game_number: gameNumber,
           pool_id: poolId,
+          player_slot: playerSlot,
           hero_name: heroName,
         });
 
@@ -382,17 +387,20 @@ export function useDeleteBanPickPick() {
       tournamentId,
       roundNumber,
       gameNumber,
+      playerSlot,
     }: {
       tournamentId: string;
       roundNumber: number;
       gameNumber: number;
+      playerSlot: number;
     }) => {
       const { error } = await supabase
         .from("banpick_picks")
         .delete()
         .eq("tournament_id", tournamentId)
         .eq("round_number", roundNumber)
-        .eq("game_number", gameNumber);
+        .eq("game_number", gameNumber)
+        .eq("player_slot", playerSlot);
 
       if (error) throw error;
     },

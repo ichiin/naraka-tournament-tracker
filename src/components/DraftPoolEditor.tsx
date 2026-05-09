@@ -7,24 +7,27 @@ interface DraftPoolEditorProps {
   pool: BanPickPool;
   picks: BanPickPick[];
   onUpdateName: (name: string) => void;
-  onUpdatePlayerName: (playerName: string) => void;
-  onToggleWonDuel: () => void;
+  onUpdateWinPlayerName: (name: string) => void;
+  onUpdateLossPlayerName: (name: string) => void;
 }
 
 export default function DraftPoolEditor({
   pool,
   picks,
   onUpdateName,
-  onUpdatePlayerName,
-  onToggleWonDuel,
+  onUpdateWinPlayerName,
+  onUpdateLossPlayerName,
 }: DraftPoolEditorProps) {
   const [editingName, setEditingName] = useState(false);
   const [nameValue, setNameValue] = useState(pool.name);
-  const [editingPlayer, setEditingPlayer] = useState(false);
-  const [playerValue, setPlayerValue] = useState(pool.player_name);
+  const [editingWin, setEditingWin] = useState(false);
+  const [winValue, setWinValue] = useState(pool.win_player_name);
+  const [editingLoss, setEditingLoss] = useState(false);
+  const [lossValue, setLossValue] = useState(pool.loss_player_name);
 
   const poolPicks = picks.filter((p) => p.pool_id === pool.id);
-  const filledCount = poolPicks.filter((p) => p.hero_name).length;
+  const filledCount = poolPicks.length;
+  const totalSlots = 8;
 
   const handleSaveName = () => {
     const trimmed = nameValue.trim();
@@ -34,23 +37,28 @@ export default function DraftPoolEditor({
     setEditingName(false);
   };
 
-  const handleSavePlayer = () => {
-    const trimmed = playerValue.trim();
-    if (trimmed !== pool.player_name) {
-      onUpdatePlayerName(trimmed);
+  const handleSaveWin = () => {
+    const trimmed = winValue.trim();
+    if (trimmed !== pool.win_player_name) {
+      onUpdateWinPlayerName(trimmed);
     }
-    setEditingPlayer(false);
+    setEditingWin(false);
+  };
+
+  const handleSaveLoss = () => {
+    const trimmed = lossValue.trim();
+    if (trimmed !== pool.loss_player_name) {
+      onUpdateLossPlayerName(trimmed);
+    }
+    setEditingLoss(false);
   };
 
   return (
     <div
       className={cn(
-        "flex-1 min-w-[180px] bg-ink-surface border-ink-border",
+        "flex-1 min-w-[180px] bg-ink-surface",
         "pool-card-hover",
-        "p-4",
-        pool.won_duel
-          ? "border-t-2 border-t-amber rounded-b-md border-x border-b border-x-ink-border border-b-ink-border"
-          : "border border-ink-border rounded-md"
+        "p-4 border border-ink-border rounded-md"
       )}
     >
       <div className="flex items-center justify-between mb-3">
@@ -80,62 +88,85 @@ export default function DraftPoolEditor({
             {pool.name || `Pool ${pool.pool_number}`}
           </button>
         )}
-
-        <button
-          onClick={onToggleWonDuel}
-          aria-label={pool.won_duel ? "Mark as loss" : "Mark as win"}
-          className={cn(
-            "transition-all duration-200",
-            pool.won_duel
-              ? "text-gold drop-shadow-[0_0_6px_rgba(240,192,96,0.5)] hover:text-gold-light"
-              : "text-ink-mist/30 hover:text-ink-mist/60"
-          )}
-        >
-          <Star
-            className="h-4 w-4"
-            fill={pool.won_duel ? "currentColor" : "none"}
-          />
-        </button>
       </div>
 
-      <div className="mb-3">
-        {editingPlayer ? (
-          <input
-            autoFocus
-            value={playerValue}
-            onChange={(e) => setPlayerValue(e.target.value)}
-            onBlur={handleSavePlayer}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") handleSavePlayer();
-              if (e.key === "Escape") {
-                setPlayerValue(pool.player_name);
-                setEditingPlayer(false);
-              }
-            }}
-            placeholder="Player name"
-            className="bg-ink-void border border-amber/50 text-ink-DEFAULT font-body text-sm px-2 py-0.5 w-full focus-visible:outline-2 focus-visible:outline-amber"
-          />
-        ) : (
-          <button
-            onClick={() => {
-              setPlayerValue(pool.player_name);
-              setEditingPlayer(true);
-            }}
-            className={cn(
-              "font-body text-sm cursor-text text-left w-full transition-colors",
-              pool.player_name
-                ? "text-ink-DEFAULT hover:text-amber"
-                : "text-ink-mist/50 italic hover:text-ink-mist"
-            )}
-          >
-            {pool.player_name || "Player name"}
-          </button>
-        )}
+      <div className="space-y-2 mb-3">
+        <div className="flex items-center gap-1.5">
+          <Star className="h-3 w-3 text-gold fill-gold shrink-0" />
+          {editingWin ? (
+            <input
+              autoFocus
+              value={winValue}
+              onChange={(e) => setWinValue(e.target.value)}
+              onBlur={handleSaveWin}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleSaveWin();
+                if (e.key === "Escape") {
+                  setWinValue(pool.win_player_name);
+                  setEditingWin(false);
+                }
+              }}
+              placeholder="Win player"
+              className="bg-ink-void border border-amber/50 text-gold font-body text-sm px-2 py-0.5 w-full focus-visible:outline-2 focus-visible:outline-amber"
+            />
+          ) : (
+            <button
+              onClick={() => {
+                setWinValue(pool.win_player_name);
+                setEditingWin(true);
+              }}
+              className={cn(
+                "font-body text-sm cursor-text text-left w-full transition-colors",
+                pool.win_player_name
+                  ? "text-gold hover:text-gold-light"
+                  : "text-ink-mist/50 italic hover:text-ink-mist"
+              )}
+            >
+              {pool.win_player_name || "Win player"}
+            </button>
+          )}
+        </div>
+
+        <div className="flex items-center gap-1.5">
+          <Star className="h-3 w-3 text-ink-mist/20 shrink-0" />
+          {editingLoss ? (
+            <input
+              autoFocus
+              value={lossValue}
+              onChange={(e) => setLossValue(e.target.value)}
+              onBlur={handleSaveLoss}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleSaveLoss();
+                if (e.key === "Escape") {
+                  setLossValue(pool.loss_player_name);
+                  setEditingLoss(false);
+                }
+              }}
+              placeholder="Loss player"
+              className="bg-ink-void border border-amber/50 text-ink-DEFAULT font-body text-sm px-2 py-0.5 w-full focus-visible:outline-2 focus-visible:outline-amber"
+            />
+          ) : (
+            <button
+              onClick={() => {
+                setLossValue(pool.loss_player_name);
+                setEditingLoss(true);
+              }}
+              className={cn(
+                "font-body text-sm cursor-text text-left w-full transition-colors",
+                pool.loss_player_name
+                  ? "text-ink-DEFAULT hover:text-amber"
+                  : "text-ink-mist/50 italic hover:text-ink-mist"
+              )}
+            >
+              {pool.loss_player_name || "Loss player"}
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="space-y-1">
-        <div className="flex gap-1">
-          {[0, 1, 2, 3].map((i) => (
+        <div className="flex gap-0.5">
+          {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
             <div
               key={i}
               className={cn(
@@ -146,7 +177,7 @@ export default function DraftPoolEditor({
           ))}
         </div>
         <span className="font-mono text-[9px] text-ink-mist">
-          {filledCount}/4 picks
+          {filledCount}/{totalSlots} picks
         </span>
       </div>
     </div>

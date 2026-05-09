@@ -20,7 +20,7 @@ export default function DraftView() {
     if (pools && pools.length === 0 && !pLoading && id) {
       initPools.mutate(id);
     }
-  }, [pools, pLoading, id, initPools]);
+  }, [pools?.length, pLoading, id]);
 
   const loading = tLoading || pLoading;
 

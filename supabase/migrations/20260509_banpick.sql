@@ -1,10 +1,13 @@
+DROP TABLE IF EXISTS banpick_picks;
+DROP TABLE IF EXISTS banpick_pools;
+
 CREATE TABLE banpick_pools (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   tournament_id UUID NOT NULL REFERENCES tournaments(id) ON DELETE CASCADE,
   pool_number INTEGER NOT NULL CHECK (pool_number BETWEEN 1 AND 4),
   name TEXT NOT NULL DEFAULT '',
-  player_name TEXT NOT NULL DEFAULT '',
-  won_duel BOOLEAN NOT NULL DEFAULT false,
+  win_player_name TEXT NOT NULL DEFAULT '',
+  loss_player_name TEXT NOT NULL DEFAULT '',
   created_at TIMESTAMPTZ DEFAULT now(),
   UNIQUE(tournament_id, pool_number)
 );
@@ -15,9 +18,10 @@ CREATE TABLE banpick_picks (
   round_number INTEGER NOT NULL CHECK (round_number BETWEEN 1 AND 4),
   game_number INTEGER NOT NULL CHECK (game_number BETWEEN 2 AND 5),
   pool_id UUID NOT NULL REFERENCES banpick_pools(id) ON DELETE CASCADE,
+  player_slot INTEGER NOT NULL CHECK (player_slot IN (1, 2)),
   hero_name TEXT NOT NULL,
   created_at TIMESTAMPTZ DEFAULT now(),
-  UNIQUE(tournament_id, round_number, game_number)
+  UNIQUE(tournament_id, round_number, game_number, player_slot)
 );
 
 CREATE INDEX idx_banpick_pools_tournament ON banpick_pools(tournament_id);
