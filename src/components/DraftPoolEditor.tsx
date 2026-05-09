@@ -59,12 +59,12 @@ export default function DraftPoolEditor({
   return (
     <div
       className={cn(
-        "flex-1 min-w-[200px] bg-ink-surface",
+        "flex-1 min-w-[220px] bg-ink-surface",
         "pool-card-hover",
-        "p-4 border border-ink-border rounded-md"
+        "p-5 border border-ink-border rounded-md"
       )}
     >
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-4">
         {editingName ? (
           <input
             autoFocus
@@ -78,7 +78,7 @@ export default function DraftPoolEditor({
                 setEditingName(false);
               }
             }}
-            className="bg-ink-void border border-amber/50 text-ink-DEFAULT font-display text-sm px-2 py-0.5 w-28 focus-visible:outline-2 focus-visible:outline-amber"
+            className="bg-ink-void border border-amber/50 text-ink-DEFAULT font-display text-base px-2 py-0.5 w-28 focus-visible:outline-2 focus-visible:outline-amber"
           />
         ) : (
           <button
@@ -86,16 +86,16 @@ export default function DraftPoolEditor({
               setNameValue(pool.name);
               setEditingName(true);
             }}
-            className="font-display text-sm text-ink-DEFAULT hover:text-amber transition-colors cursor-text text-left"
+            className="font-display text-base text-ink-DEFAULT hover:text-amber transition-colors cursor-text text-left"
           >
             {pool.name || `Pool ${pool.pool_number}`}
           </button>
         )}
       </div>
 
-      <div className="space-y-2 mb-3">
-        <div className="flex items-center gap-1.5">
-          <Star className="h-3 w-3 text-gold fill-gold shrink-0" />
+      <div className="space-y-3 mb-4">
+        <div className="flex items-center gap-2">
+          <Star className="h-3.5 w-3.5 text-gold fill-gold shrink-0" />
           <Select
             value={pool.win_player_name || undefined}
             onValueChange={(value) => {
@@ -106,7 +106,7 @@ export default function DraftPoolEditor({
           >
             <SelectTrigger
               className={cn(
-                "h-8 bg-ink-void border-ink-border text-xs font-body",
+                "h-9 bg-ink-void border-ink-border text-sm font-body",
                 pool.win_player_name ? "text-gold" : "text-ink-mist/50"
               )}
             >
@@ -118,7 +118,7 @@ export default function DraftPoolEditor({
                   key={player.value}
                   value={player.value}
                   disabled={player.disabled}
-                  className="font-body text-xs text-ink-DEFAULT data-[disabled]:opacity-30 data-[disabled]:cursor-not-allowed focus:bg-amber-wash/10 focus:text-amber"
+                  className="font-body text-sm text-ink-DEFAULT data-[disabled]:opacity-30 data-[disabled]:cursor-not-allowed focus:bg-amber-wash/10 focus:text-amber"
                 >
                   {player.label}
                 </SelectItem>
@@ -127,8 +127,8 @@ export default function DraftPoolEditor({
           </Select>
         </div>
 
-        <div className="flex items-center gap-1.5">
-          <Star className="h-3 w-3 text-ink-mist/20 shrink-0" />
+        <div className="flex items-center gap-2">
+          <Star className="h-3.5 w-3.5 text-ink-mist/20 shrink-0" />
           <Select
             value={pool.loss_player_name || undefined}
             onValueChange={(value) => {
@@ -139,7 +139,7 @@ export default function DraftPoolEditor({
           >
             <SelectTrigger
               className={cn(
-                "h-8 bg-ink-void border-ink-border text-xs font-body",
+                "h-9 bg-ink-void border-ink-border text-sm font-body",
                 pool.loss_player_name ? "text-ink-DEFAULT" : "text-ink-mist/50"
               )}
             >
@@ -151,7 +151,7 @@ export default function DraftPoolEditor({
                   key={player.value}
                   value={player.value}
                   disabled={player.disabled}
-                  className="font-body text-xs text-ink-DEFAULT data-[disabled]:opacity-30 data-[disabled]:cursor-not-allowed focus:bg-amber-wash/10 focus:text-amber"
+                  className="font-body text-sm text-ink-DEFAULT data-[disabled]:opacity-30 data-[disabled]:cursor-not-allowed focus:bg-amber-wash/10 focus:text-amber"
                 >
                   {player.label}
                 </SelectItem>
@@ -161,19 +161,19 @@ export default function DraftPoolEditor({
         </div>
       </div>
 
-      <div className="space-y-1">
-        <div className="flex gap-0.5">
+      <div className="space-y-1.5">
+        <div className="flex gap-1">
           {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
             <div
               key={i}
               className={cn(
-                "h-1 flex-1 transition-colors duration-300",
+                "h-1.5 flex-1 transition-colors duration-300",
                 i < filledCount ? "bg-amber" : "bg-ink-border/50"
               )}
             />
           ))}
         </div>
-        <span className="font-mono text-[9px] text-ink-mist">
+        <span className="font-mono text-[11px] text-ink-mist">
           {filledCount}/{totalSlots} picks
         </span>
       </div>

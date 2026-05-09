@@ -107,13 +107,13 @@ export default function TournamentView() {
             size="sm"
             onClick={() => setShowPicks(!showPicks)}
             className={cn(
-              "font-body text-xs gap-2",
+              "font-body text-sm gap-2",
               showPicks
                 ? "border-amber/30 text-amber hover:border-amber hover:bg-amber-wash/10"
                 : "border-ink-border text-ink-mist hover:text-amber hover:border-amber/40"
             )}
           >
-            <Table2 className="h-3.5 w-3.5" />
+            <Table2 className="h-4 w-4" />
             Picks
           </Button>
           <Button
@@ -121,13 +121,13 @@ export default function TournamentView() {
             size="sm"
             onClick={() => setShowDraft(!showDraft)}
             className={cn(
-              "font-body text-xs gap-2",
+              "font-body text-sm gap-2",
               showDraft
                 ? "border-amber/30 text-amber hover:border-amber hover:bg-amber-wash/10"
                 : "border-ink-border text-ink-mist hover:text-amber hover:border-amber/40"
             )}
           >
-            <Swords className="h-3.5 w-3.5" />
+            <Swords className="h-4 w-4" />
             Draft
           </Button>
           <Button
@@ -137,7 +137,7 @@ export default function TournamentView() {
             className="border-ink-border text-ink-mist hover:text-amber hover:border-amber/40
                        font-body text-xs gap-2"
           >
-            <Share2 className="h-3.5 w-3.5" />
+            <Share2 className="h-4 w-4" />
             Share
           </Button>
           <Link to={`/tournament/${id}/setup`}>
@@ -147,7 +147,7 @@ export default function TournamentView() {
               className="border-ink-border text-ink-mist hover:text-gold hover:border-gold/40
                          font-body text-xs gap-2"
             >
-              <Settings className="h-3.5 w-3.5" />
+              <Settings className="h-4 w-4" />
               Setup
             </Button>
           </Link>
@@ -156,7 +156,7 @@ export default function TournamentView() {
 
       {showPicks && (
         <div className="space-y-4">
-          <h2 className="font-display text-sm text-ink-DEFAULT uppercase tracking-wide">
+          <h2 className="font-display text-base text-ink-DEFAULT uppercase tracking-wide">
             Pick Table
           </h2>
 
@@ -172,7 +172,7 @@ export default function TournamentView() {
       )}
 
       {showDraft && (
-        <div className="space-y-4">
+        <div className="space-y-5">
           <div className="bg-ink-surface border border-ink-border rounded-lg p-6">
             <DraftTracker
               pools={pools || []}

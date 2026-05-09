@@ -266,13 +266,13 @@ export default function DraftTracker({ pools, picks, participants }: DraftTracke
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <h2 className="font-display text-sm text-ink-DEFAULT uppercase tracking-wide">
+          <h2 className="font-display text-lg text-ink-DEFAULT uppercase tracking-wide">
             Draft Tracker
           </h2>
           <button
             onClick={handleStrictToggle}
             className={cn(
-              "flex items-center gap-1.5 font-mono text-[10px] px-2 py-1 border transition-colors",
+              "flex items-center gap-1.5 font-mono text-xs px-3 py-1.5 border transition-colors",
               strictMode
                 ? "border-vermillion-faded/40 text-vermillion-faded"
                 : "border-ink-border text-ink-mist"
@@ -280,7 +280,7 @@ export default function DraftTracker({ pools, picks, participants }: DraftTracke
           >
             <span
               className={cn(
-                "h-1.5 w-1.5 rounded-full",
+                "h-2 w-2 rounded-full",
                 strictMode ? "bg-vermillion-DEFAULT" : "bg-ink-border"
               )}
             />
@@ -291,7 +291,7 @@ export default function DraftTracker({ pools, picks, participants }: DraftTracke
         <div className="flex items-center gap-3">
           <span
             className={cn(
-              "font-mono text-xs tabular-nums",
+              "font-mono text-sm tabular-nums",
               totalFilled === totalCells
                 ? "text-jade"
                 : totalFilled > 0
@@ -301,12 +301,12 @@ export default function DraftTracker({ pools, picks, participants }: DraftTracke
           >
             {totalFilled}/{totalCells} picks
           </span>
-          <div className="flex gap-px w-32">
+          <div className="flex gap-px w-40">
             {Array.from({ length: 32 }, (_, i) => (
               <div
                 key={i}
                 className={cn(
-                  "h-1.5 flex-1 transition-colors duration-300",
+                  "h-2 flex-1 transition-colors duration-300",
                   i < totalFilled ? "bg-amber" : "bg-ink-border/20"
                 )}
               />
@@ -315,7 +315,7 @@ export default function DraftTracker({ pools, picks, participants }: DraftTracke
         </div>
       </div>
 
-      <div className="flex gap-4">
+      <div className="flex gap-5">
         {[1, 2, 3, 4].map((poolNum) => {
           const pool = poolMap.get(poolNum);
           if (!pool) return null;
@@ -353,11 +353,11 @@ export default function DraftTracker({ pools, picks, participants }: DraftTracke
         })}
       </div>
 
-      <div className="flex gap-1">
+      <div className="flex gap-2">
         <button
           onClick={() => setSelectedGame(null)}
           className={cn(
-            "font-mono text-[11px] px-3 py-1.5 border transition-colors",
+            "font-mono text-sm px-4 py-2 border transition-colors",
             selectedGame === null
               ? "border-amber/60 text-amber bg-amber-wash/5"
               : "border-ink-border text-ink-mist hover:text-ink-DEFAULT"
@@ -370,7 +370,7 @@ export default function DraftTracker({ pools, picks, participants }: DraftTracke
             key={game}
             onClick={() => setSelectedGame(game)}
             className={cn(
-              "font-mono text-[11px] px-3 py-1.5 border transition-colors",
+              "font-mono text-sm px-4 py-2 border transition-colors",
               selectedGame === game
                 ? "border-amber/60 text-amber bg-amber-wash/5"
                 : "border-ink-border text-ink-mist hover:text-ink-DEFAULT"
@@ -385,7 +385,7 @@ export default function DraftTracker({ pools, picks, participants }: DraftTracke
         <table className="w-full border-collapse">
           <thead>
             <tr>
-              <th className="sticky left-0 bg-ink-surface z-10 text-left font-display text-xs text-gold tracking-wide uppercase py-3 pr-4 border-b border-ink-border min-w-[80px]">
+              <th className="sticky left-0 bg-ink-surface z-10 text-left font-display text-sm text-gold tracking-wide uppercase py-4 pr-5 border-b border-ink-border min-w-[90px]">
                 Game
               </th>
               {ROUNDS.map((round) => {
@@ -396,19 +396,19 @@ export default function DraftTracker({ pools, picks, participants }: DraftTracke
                 return (
                   <th
                     key={round}
-                    className="text-center py-2 px-2 border-b border-ink-border min-w-[120px]"
+                    className="text-center py-3 px-3 border-b border-ink-border min-w-[140px]"
                   >
-                    <div className="font-mono text-[10px] text-ink-mist tracking-[0.15em] uppercase mb-1">
+                    <div className="font-mono text-xs text-ink-mist tracking-[0.15em] uppercase mb-1.5">
                       BP Round {round}
                     </div>
-                    <div className="h-0.5 mb-2 bg-gradient-to-r from-amber to-gold-light" />
-                    <div className="flex items-center justify-center gap-1">
-                      <Star className="h-3 w-3 text-gold fill-gold" />
-                      <span className="font-display text-sm text-gold">
+                    <div className="h-[3px] mb-2.5 bg-gradient-to-r from-amber to-gold-light" />
+                    <div className="flex items-center justify-center gap-1.5">
+                      <Star className="h-3.5 w-3.5 text-gold fill-gold" />
+                      <span className="font-display text-base text-gold">
                         {winName || `Win ${round}`}
                       </span>
                     </div>
-                    <span className="block font-mono text-[10px] text-ink-mist/70 mt-0.5">
+                    <span className="block font-mono text-xs text-ink-mist/70 mt-1">
                       {lossName || `Loss ${round}`}
                     </span>
                   </th>
@@ -430,7 +430,7 @@ export default function DraftTracker({ pools, picks, participants }: DraftTracke
                       )}
                     >
                       <td
-                        className="sticky left-0 z-10 py-2 pr-4 border-b border-ink-border/30"
+                        className="sticky left-0 z-10 py-3 pr-5 border-b border-ink-border/30"
                         style={{
                           backgroundColor:
                             gi % 2 === 0
@@ -440,15 +440,15 @@ export default function DraftTracker({ pools, picks, participants }: DraftTracke
                               : "transparent",
                         }}
                       >
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-3">
                           {si === 0 && (
-                            <span className="font-mono text-sm text-gold font-semibold">
+                            <span className="font-mono text-base text-gold font-semibold">
                               G{game}
                             </span>
                           )}
                           <span
                             className={cn(
-                              "font-mono text-[9px] w-4 text-center",
+                              "font-mono text-[11px] w-5 text-center",
                               isWin
                                 ? "text-gold font-semibold"
                                 : "text-ink-mist/60"
@@ -473,7 +473,7 @@ export default function DraftTracker({ pools, picks, participants }: DraftTracke
                           <td
                             key={`${round}-${game}-${slot.value}`}
                             className={cn(
-                              "text-center py-1.5 px-1 border-b border-ink-border/30 transition-colors",
+                              "text-center py-2 px-2 border-b border-ink-border/30 transition-colors",
                               isFlashing && "pick-flash"
                             )}
                           >
@@ -483,15 +483,15 @@ export default function DraftTracker({ pools, picks, participants }: DraftTracke
                               }
                               aria-label={`Round ${round}, Game ${game}, ${slot.label}${cellPick ? `, hero: ${cellPick.hero_name}` : ", no pick"}`}
                               className={cn(
-                                "flex flex-col items-center justify-center gap-0.5 cursor-pointer",
-                                "hover:bg-amber-wash/10 rounded transition-colors min-h-[60px] min-w-[90px] p-1.5 w-full",
+                                "flex flex-col items-center justify-center gap-1 cursor-pointer",
+                                "hover:bg-amber-wash/10 rounded transition-colors min-h-[60px] min-w-[110px] p-2 w-full",
                                 isWin &&
                                   "border-l-2 border-amber/30"
                               )}
                             >
                               <span
                                 className={cn(
-                                  "font-body text-[10px] truncate max-w-[80px] leading-tight",
+                                  "font-body text-xs truncate max-w-[100px] leading-tight",
                                   isWin
                                     ? "text-gold/80"
                                     : "text-ink-mist/60",
@@ -501,14 +501,14 @@ export default function DraftTracker({ pools, picks, participants }: DraftTracke
                                 {playerName || "—"}
                               </span>
                               {cellPick ? (
-                                <div className="w-9 h-9 shrink-0 flex items-center justify-center">
+                                <div className="w-10 h-10 shrink-0 flex items-center justify-center">
                                   <HeroCard
                                     name={cellPick.hero_name}
                                     size="sm"
                                   />
                                 </div>
                               ) : (
-                                <span className="font-mono text-xs text-ink-mist/25">
+                                <span className="font-mono text-sm text-ink-mist/25">
                                   —
                                 </span>
                               )}
@@ -525,22 +525,22 @@ export default function DraftTracker({ pools, picks, participants }: DraftTracke
         </table>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="font-display text-xs text-ink-DEFAULT uppercase tracking-wide">
+          <h3 className="font-display text-sm text-ink-DEFAULT uppercase tracking-wide">
             Banned Heroes
           </h3>
           <div className="flex gap-2">
             <button
               onClick={handleCopyAsText}
-              className="font-mono text-[10px] text-ink-mist hover:text-amber transition-colors"
+              className="font-mono text-xs text-ink-mist hover:text-amber transition-colors"
             >
               Copy as text
             </button>
             <button
               onClick={handleClearAll}
               disabled={totalFilled === 0}
-              className="font-mono text-[10px] text-ink-mist hover:text-vermillion transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+              className="font-mono text-xs text-ink-mist hover:text-vermillion transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
             >
               Clear all
             </button>
@@ -556,13 +556,13 @@ export default function DraftTracker({ pools, picks, participants }: DraftTracke
               : [];
 
           return (
-            <div key={round} className="flex items-start gap-3">
-              <span className="font-mono text-[10px] text-ink-mist w-16 shrink-0 pt-0.5">
+            <div key={round} className="flex items-start gap-4">
+              <span className="font-mono text-xs text-ink-mist w-16 shrink-0 pt-0.5">
                 Round {round}
               </span>
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex flex-wrap gap-2">
                 {banned && banned.size === 0 ? (
-                  <span className="font-mono text-[10px] text-ink-mist/40 italic">
+                  <span className="font-mono text-xs text-ink-mist/40 italic">
                     —
                   </span>
                 ) : null}
@@ -573,7 +573,7 @@ export default function DraftTracker({ pools, picks, participants }: DraftTracke
                       <span
                         key={hero}
                         className={cn(
-                          "font-mono text-[9px] px-1.5 py-0.5 border border-vermillion-faded/30 text-ink-mist",
+                          "font-mono text-[11px] px-2 py-1 border border-vermillion-faded/30 text-ink-mist",
                           isNew && "animate-slide-up"
                         )}
                       >
@@ -583,7 +583,7 @@ export default function DraftTracker({ pools, picks, participants }: DraftTracke
                   })}
               </div>
               {banned && banned.size > 0 && (
-                <span className="font-mono text-[9px] text-ink-mist/50 shrink-0 pt-0.5">
+                <span className="font-mono text-[11px] text-ink-mist/50 shrink-0 pt-0.5">
                   ({banned.size})
                 </span>
               )}
