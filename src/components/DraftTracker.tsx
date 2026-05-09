@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import type { BanPickPool, BanPickPick } from "@/hooks/useTournament";
+import type { BanPickPool, BanPickPick, Participant } from "@/hooks/useTournament";
 import {
   useSaveBanPickPick,
   useDeleteBanPickPick,
@@ -28,9 +28,10 @@ function getPoolNumberForCell(round: number, game: number): number {
 interface DraftTrackerProps {
   pools: BanPickPool[];
   picks: BanPickPick[];
+  participants: Participant[];
 }
 
-export default function DraftTracker({ pools, picks }: DraftTrackerProps) {
+export default function DraftTracker({ pools, picks, participants }: DraftTrackerProps) {
   const { id: tournamentId } = useParams<{ id: string }>();
   const savePick = useSaveBanPickPick();
   const deletePick = useDeleteBanPickPick();
@@ -94,6 +95,15 @@ export default function DraftTracker({ pools, picks }: DraftTrackerProps) {
     }
     return map;
   }, [picks, strictMode]);
+
+  const usedPlayerNames = useMemo(() => {
+    const names = new Set<string>();
+    for (const pool of pools) {
+      if (pool.win_player_name) names.add(pool.win_player_name);
+      if (pool.loss_player_name) names.add(pool.loss_player_name);
+    }
+    return names;
+  }, [pools]);
 
   const totalFilled = picks.length;
   const totalCells = 32;
@@ -276,6 +286,8 @@ export default function DraftTracker({ pools, picks }: DraftTrackerProps) {
               key={pool.id}
               pool={pool}
               picks={poolPicks}
+              participants={participants}
+              usedPlayerNames={usedPlayerNames}
               onUpdateName={(name) =>
                 updatePool.mutate({
                   id: pool.id,

@@ -6,6 +6,7 @@ import {
   useBanPickPools,
   useBanPickPicks,
   useInitializeBanPickPools,
+  useParticipants,
 } from "@/hooks/useTournament";
 import DraftTracker from "@/components/DraftTracker";
 
@@ -14,6 +15,7 @@ export default function DraftView() {
   const { data: tournament, isLoading: tLoading } = useTournament(id ?? "");
   const { data: pools, isLoading: pLoading } = useBanPickPools(id ?? "");
   const { data: picks } = useBanPickPicks(id ?? "");
+  const { data: participants } = useParticipants(id ?? "");
   const initPools = useInitializeBanPickPools();
 
   useEffect(() => {
@@ -89,6 +91,7 @@ export default function DraftView() {
         <DraftTracker
           pools={pools || []}
           picks={picks || []}
+          participants={participants || []}
         />
       </div>
     </motion.div>
