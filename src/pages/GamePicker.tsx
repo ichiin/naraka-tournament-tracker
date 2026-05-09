@@ -1,5 +1,5 @@
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Check } from "lucide-react";
 import { toast } from "sonner";
@@ -40,9 +40,10 @@ export default function GamePicker() {
 
   const maxHeroes = tournament?.mode === "solo" ? 1 : 3;
 
-  const gamePicks = allPicks?.filter(
-    (p) => p.game_number === gameNum
-  ) || [];
+  const gamePicks = useMemo(
+    () => allPicks?.filter((p) => p.game_number === gameNum) || [],
+    [allPicks, gameNum]
+  );
 
   const getSavedHeroes = useCallback(
     (participantId: string) =>

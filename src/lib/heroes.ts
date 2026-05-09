@@ -37,8 +37,15 @@ export function heroToSlug(name: string): string {
     .replace(/[^a-z0-9_]/g, "");
 }
 
+const HERO_ICON_SLUG: Record<string, string> = {
+  "Tsuchimikado Kurumi": "kurumi",
+  "Takeda Nobutada": "takeda",
+  "Hadi Ismail": "hadi",
+  "Kylin Zhang": "kylin",
+};
+
 export function heroToIconPath(name: string): string {
-  const slug = heroToSlug(name);
+  const slug = HERO_ICON_SLUG[name] || heroToSlug(name);
   return `/heroes/${slug}.png`;
 }
 
